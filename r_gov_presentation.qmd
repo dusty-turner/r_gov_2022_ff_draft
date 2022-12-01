@@ -1,0 +1,939 @@
+---
+title: "'Win' Your Fantasy Football Auction Draft"
+subtitle: "with Integer Programming and R" 
+author: "Major Dusty Turner"
+format:
+  revealjs: 
+    theme: "simple"
+    embed-resources: true
+    self-contained: true
+    # theme: "serif"
+    # theme: "night"
+institute: "Department of Statistical Science at Baylor University"
+logo: "03_images/baylor.png"
+linestretch: .1
+---
+
+
+## In this talk you'll learn to 'win' your fantasy football league using {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: {.r-hstack}
+
+::: {data-id="box1" auto-animate-delay="0" style="color:black; width: 30%; height: 200px; margin: 50px;"}
+ESPN API
+:::
+
+::: {data-id="box2" auto-animate-delay="0" style="color:black; width: 60%; height: 200px; margin: 50px; align: center"}
+Integer Programming
+:::
+
+::: {data-id="none" auto-animate-delay="0" style="color:black; width: 5%; height: 200px; margin: 50px;"}
+and 
+:::
+
+
+::: {data-id="box3" auto-animate-delay="0" style="color:black; width: 5%; height: 200px; margin: 50px;"}
+R
+:::
+
+:::
+
+## In this talk you'll learn to 'win' your fantasy football league using {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: {.r-hstack}
+
+::: {data-id="box1" auto-animate-delay="0" style="color:red; width: 30%; height: 200px; margin: 50px;"}
+ESPN API
+:::
+
+::: {data-id="box2" auto-animate-delay="0" style="color:red; width: 60%; height: 200px; margin: 50px; align: center"}
+Integer Programming
+:::
+
+::: {data-id="none" auto-animate-delay="0" style="color:black; width: 5%; height: 200px; margin: 50px;"}
+and 
+:::
+
+
+::: {data-id="box3" auto-animate-delay="0" style="color:red; width: 5%; height: 200px; margin: 50px;"}
+R
+:::
+
+:::
+
+
+
+# But first...
+
+## I went for a run today... 
+
+::: {.r-stack}
+
+![](03_images/run_dc.PNG){.absolute top=100 left=100 width="35%"}
+<!-- ![](03_images/run_nyc.jpg){.fragment .absolute top=100 left=-300 width="35%"} -->
+<!-- ![](03_images/run_wp.png){.fragment .absolute top=100 left=500 width="35%"} -->
+<!-- ![](03_images/run_van.PNG){.fragment .absolute top=100 left=900 width="35%"} -->
+:::
+
+## So I went for a run today... 
+
+<!-- ::: {.r-stack} -->
+
+![](03_images/run_dc.PNG){.absolute top=100 left=100 width="35%"}
+![](03_images/run_nyc.jpg){.absolute top=100 left=-300 width="35%"}
+![](03_images/run_wp.png){.absolute top=100 left=500 width="35%"}
+![](03_images/run_van.PNG){.absolute top=100 left=900 width="35%"}
+<!-- ::: -->
+
+# A little about me
+
+## Professional life
+
+:::: {.columns}
+
+::: {.column width="40%"}
+::: {.r-fit-text}
+- Engineer Officer
+  - Training: Fort Leonard Wood Missouri 
+  - Platoon Leader: Hawaii (Iraq)
+  - Company Commander: White Sands Missile Range, NM (Afghanistan)
+- Assistant Professor / Instructor
+  - United States Miliary Academy, West Point, NY
+- Operations Research Systems Analyst (ORSA)
+  - Center for Army Analysis: Fort Belvoir, VA
+:::
+:::
+
+![](03_images/about_me_computer.jpg){.absolute top=75 right=100 width="50%" .fragment .fade-in}
+![](03_images/about_me_tank.jpg){.absolute top=125 right=50 width="50%" .fragment .fade-in}
+![](03_images/about_me_best_sapper.jpg){.absolute top=175 right=0 width="50%" .fragment .fade-in}
+
+
+::::
+
+
+## Educational life
+
+:::: {.columns}
+
+::: {.column width="60%"}
+::: {.r-fit-text}
+- United States Military Academy, 2007
+  - BS Operations Research
+- University of Missouri of Science and Technology, 2012
+  - MS Engineering Management
+- THE Ohio State, 2016
+  - MS Integrated Systems Engineering 
+  - Applied Statistics Minor
+- Baylor University, 2025 (Hopefully)
+  - Statistics PhD Student
+:::
+:::
+![](03_images/education_rolla.jpg){.absolute bottom=0 right=0 width="25%"}
+![](03_images/education_army.png){.absolute top=100 right=0 width="25%"}
+![](03_images/education_ohio_state.png){.absolute bottom=0 left=300 width="40%"}
+![](03_images/education_baylor.png){.absolute bottom=00 left=0 width="30%"}
+::::
+
+
+
+## Best life
+
+:::: {.columns}
+
+::: {.column width="40%"}
+![](03_images/family_all.jpg){.absolute bottom=00 left=0 width="35%"}
+:::
+::: {.column width="60%"}
+<!-- ::: {.r-fit-text} -->
+- Married Jill (2010)
+  - Xichigan
+  - Epic / Mayo Clinic
+- Cal (2013)
+  - New Mexico
+  - All Sports
+- Reese (2015)
+  - Ohio
+  - Dance / Sports
+
+<!-- ::: -->
+:::
+::::
+
+## What I assume about you... {auto-animate=true}
+
+::: {style="margin-top: 100px;"}
+Football 
+
+Fantasy Football
+
+Integer Programming 
+
+RStats
+:::
+
+## What I assume about you... {auto-animate=true}
+
+::: {style="margin-top: 100px; font-size: 3em; color: green;"}
+Football
+
+![](03_images/into_football.png){width=10%}
+
+:::
+
+## What I assume about you... {auto-animate=true}
+
+::: {style="margin-top: 100px;"}
+Football 
+
+Fantasy Football
+
+Integer Programming 
+
+RStats
+:::
+
+## What I assume about you... {auto-animate=true}
+
+::: {style="margin-top: 100px; font-size: 3em; color: red;"}
+Fantasy Football
+
+![](03_images/intro_fantasy.jpg){width=30%}
+:::
+
+## What I assume about you... {auto-animate=true}
+
+::: {style="margin-top: 100px;"}
+Football 
+
+Fantasy Football
+
+Integer Programming 
+
+RStats
+:::
+
+## What I assume about you... {auto-animate=true}
+
+::: {style="margin-top: 100px; font-size: 2.5em; color: red;"}
+Integer Programming
+
+![](03_images/intro_integer.jpg){width=25%}
+:::
+
+## What I assume about you... {auto-animate=true}
+
+::: {style="margin-top: 100px;"}
+Football 
+
+Fantasy Football
+
+Integer Programming 
+
+RStats
+:::
+
+## What I assume about you... {auto-animate=true}
+
+::: {style="margin-top: 100px; font-size: 2.5em; color: yellow;"}
+RStats
+
+![](03_images/intro_tidyverse.png){width=10%}
+![](03_images/intro_dplyr.png){width=10%}
+![](03_images/intro_ggplot2.png){width=10%}
+![](03_images/intro_purrr.png){width=10%}
+![](03_images/intro_quarto.png){width=10%}
+![](03_images/introshiny.png){width=10%}
+![](03_images/intro_stringr.png){width=10%}
+![](03_images/intro_rvest.png){width=10%}
+:::
+
+# So what is this fantasy football thing...?
+
+## I'm glad you asked
+
+:::: {.columns}
+
+::: {.column width="60%"}
+1) Fantasy football is a weekly game where team managers face off head-to-head with one other member in the league.
+
+2) Teams score points based off of the real life performance of players on their team. 
+
+3) Teams that score more points than their opponent win. 
+:::
+
+::: {.column width="40%"}
+<br>
+<!-- ![](03_images/fantasy_week_score.jpg){fig-align="center"} -->
+```{r fig.align='center'}
+knitr::include_graphics("03_images/fantasy_week_score.jpg")
+```
+
+:::
+
+::::
+
+## Roster make up
+
+:::: {.columns}
+
+::: {.column width="50%"}
+::: {.r-fit-text}
+
+- 1 Quarterback
+- 2 Running backs
+- 2 Wide Receivers
+- 1 Tight End
+- 1 Flex (RB, WR, or TE)
+- 1 Defense
+- 1 Kicker
+- Several bench players
+
+Teams generally score points for yards gained, touchdowns scored, turnovers, field goals...
+:::
+
+:::
+
+::: {.column width="50%"}
+![](03_images/fantasy_headtohead.jpg){.absolute top=0 left=600}
+:::
+
+::::
+
+
+
+## How do we select players?
+
+:::: {.columns}
+
+::: {.column width="65%"}
+
+### Auction draft
+
+
+1) $200 to bid on players 
+2) Highest big wins
+3) The draft continues until all managers fill out their roster
+
+:::
+
+::: {.column width="35%"}
+
+### Snake draft
+
+Players alternate selecting players until rosters are filled out.
+
+:::
+
+::::
+
+## There are several strategies
+
+1) Spend big on big names
+2) Bargain hunt
+
+Maybe there's a more intelligent strategy?
+
+```{r fig.align='center'}
+knitr::include_graphics("03_images/thinking_breese.jpg")
+```
+
+<!-- ![](03_images/thinking_breese.jpg) -->
+
+## Enter: Integer Programming
+
+:::: {.columns}
+
+
+::: {.column width="50%"}
+
+::: {.r-fit-text}
+
+**Assumptions:**
+
+1) We know how many points a player is going to score throughout the year
+2) We know how much each player is worth
+
+**Subject to:**
+
+1) Expected cost of each player
+2) Roster configuration
+
+
+:::
+:::
+
+::: {.column width="50%"}
+
+::: {.r-fit-text}
+
+**Goal:** Maximize expected points 
+
+<br> 
+<br> 
+<br> 
+<br> 
+
+**Other pertinent information:**
+
+1) We do not care about the quality of our bench (spend $0 on bench)
+2) We are indifferent to our defense and kicker
+
+:::
+
+:::
+
+::::
+
+
+## Let's get mathy
+
+Maximize: $\sum{p_{qrwt} x_{qrwt}}$
+
+<!-- <br>   -->
+
+where $p_{qrwt} =$ expected points scored for player $qrwt$
+
+
+$q = 0, 1, 2, \ldots, Q$
+
+$r = 0, 1, 2, \ldots, R$
+
+$w = 0, 1, 2, \ldots, W$
+
+$t = 0, 1, 2, \ldots, T$
+
+$x_{qrwt} \in \{0,1\}$ 
+
+## Not so fast
+
+![](03_images/lee_corso.gif){fig-align="center" width="75%"}
+<!-- https://tenor.com/view/lee-corso-not-so-fast-wait-one-moment-broadcaster-wait-gif-15708166 -->
+
+## Constraints
+
+:::: {.columns}
+
+
+::: {.column width="65%"}
+
+### Football position constraints:
+
+<!-- :::{.column-body-outset} -->
+<!-- Football Position Constraints: -->
+<!-- ::: -->
+
+<!-- $\sum_{x_{qrwt}}^{x_{Qrwt}} = 1  \hspace{1cm}$ Only 1 QB -->
+
+$x_{1rwt} + x_{2rwt} + \ldots + x_{Qrwt} = 1$ 
+$x_{q1wt} + x_{q2wt} + \ldots + x_{qRwt} \leq 3$ 
+$x_{qr1t} + x_{qr2t} + \ldots + x_{qrWt} \leq 3$ 
+$x_{qrw1} + x_{qrw2} + \ldots + x_{qrwT} \leq 2$ 
+$x_{q111} + x_{q211} + \ldots + x_{qRWT} = 6$ 
+
+:::
+
+::: {.column width="35%"}
+
+<!-- ### Plain English -->
+
+<br>
+
+Only 1 QB  
+At most 3 RBs  
+At most 3 WRs  
+At most 2 TEs  
+RB + WR + TE = 6
+:::
+### Financial constraints
+
+$$\sum_{q=0}^Q\sum_{r=0}^R\sum_{w=0}^W\sum_{t=0}^T C_{qrwt} * X_{qrwt} <= 200 \hspace{1cm}$$
+
+::::
+
+# So how do we get player data....?
+
+## I'm glad you asked {auto-animate="true"}
+
+<!-- ```{.r code-line-numbers="1"} -->
+```{.r}
+ESPNGet <- httr::RETRY(
+    verb = "GET",
+    )
+
+```
+
+## I'm glad you asked {auto-animate="true"}
+
+```{.r code-line-numbers="3-5"}
+ESPNGet <- httr::RETRY(
+    verb = "GET",
+    url = paste0("https://fantasy.espn.com/apis/v3/games/ffl/seasons/2022/
+    segments/0/leaguedefaults/3?scoringPeriodId=0&view=kona_player_info")
+)
+```
+
+## I'm glad you asked {auto-animate="true"}
+
+```{.r code-line-numbers="5-6"}
+ESPNGet <- httr::RETRY(
+    verb = "GET",
+    url = paste0("https://fantasy.espn.com/apis/v3/games/ffl/seasons/2022/
+    segments/0/leaguedefaults/3?scoringPeriodId=0&view=kona_player_info"),
+    query = list(view = "kona_player_info"),
+    httr::accept_json()
+  )
+
+```
+
+## I'm glad you asked {auto-animate="true"}
+
+```{.r code-line-numbers="7-14"}
+ESPNGet <- httr::RETRY(
+    verb = "GET",
+    url = paste0("https://fantasy.espn.com/apis/v3/games/ffl/seasons/2022/
+    segments/0/leaguedefaults/3?scoringPeriodId=0&view=kona_player_info"),
+    query = list(view = "kona_player_info"),
+    httr::accept_json(),
+    httr::add_headers(
+      `X-Fantasy-Filter` = jsonlite::toJSON(
+        x = list(players = list(limit = 500,
+                                sortPercOwned = list(sortAsc = FALSE,
+                                                     sortPriority = 1
+                                                     ))),
+            auto_unbox = TRUE))
+   )
+```
+
+## I'm glad you asked {auto-animate="true"}
+
+```{.r code-line-numbers="16-17"}
+ESPNGet <- httr::RETRY(
+    verb = "GET",
+    url = paste0("https://fantasy.espn.com/apis/v3/games/ffl/seasons/2022/
+    segments/0/leaguedefaults/3?scoringPeriodId=0&view=kona_player_info"),
+    query = list(view = "kona_player_info"),
+    httr::accept_json(),
+    httr::add_headers(
+      `X-Fantasy-Filter` = jsonlite::toJSON(
+        x = list(players = list(limit = 500,
+                                sortPercOwned = list(sortAsc = FALSE,
+                                                     sortPriority = 1
+                                                     ))),
+            auto_unbox = TRUE))
+   )
+   
+ESPNRaw <- rawToChar(ESPNGet$content)
+ESPNFromJSON <- jsonlite::fromJSON(ESPNRaw)
+```
+
+```{r, echo=FALSE, cache=TRUE}
+library(tidyverse)
+
+ESPNGet <- httr::RETRY(
+    verb = "GET",
+    url = paste0(
+      "https://fantasy.espn.com/apis/v3/games/ffl/seasons/2022/segments/0/leaguedefaults/3?scoringPeriodId=0&view=kona_player_info"
+    ),
+    query = list(view = "kona_player_info"),
+    httr::accept_json(),
+    httr::add_headers(
+      `X-Fantasy-Filter` = jsonlite::toJSON(
+        x = list(
+          players = list(
+            limit = 500,
+            sortPercOwned = list(
+              sortAsc = FALSE,
+              sortPriority = 1
+            )
+          )
+        ),
+        auto_unbox = TRUE
+      )
+    )
+  )
+
+
+ESPNRaw <- rawToChar(ESPNGet$content)
+ESPNFromJSON <- jsonlite::fromJSON(ESPNRaw)
+```
+
+
+## Make tibble of 1 player's data
+
+::: {.column width="115%"}
+
+```{.r code-line-numbers="1,11|2-4|5-10"}
+get_player_projection <- function(id){
+  tibble(fpts = ESPNFromJSON$players$player$stat[[id]]$appliedTotal,
+         season = ESPNFromJSON$players$player$stat[[id]]$seasonId, 
+         score_per_id = ESPNFromJSON$players$player$stat[[id]]$scoringPeriodId) |>
+  filter(score_per_id == 0) |> 
+  mutate(player = ESPNFromJSON$players$player$fullName[id]) |> 
+  mutate(position = ESPNFromJSON$players$player$defaultPositionId[id]) |> 
+  filter(season == 2022) |> 
+  filter(fpts == max(fpts)) |> 
+mutate(value = ESPNFromJSON$players$player$draftRanksByRankType$PPR$auctionValue[id])
+}
+```
+
+:::
+
+## Show one example for Jared
+
+```{r, cache=TRUE, echo=FALSE}
+library(tidyverse)
+
+get_player_projection <- function(id){
+  tibble(fpts = ESPNFromJSON$players$player$stat[[id]]$appliedTotal,
+         season = ESPNFromJSON$players$player$stat[[id]]$seasonId, 
+         score_per_id = ESPNFromJSON$players$player$stat[[id]]$scoringPeriodId) |>
+  filter(score_per_id == 0) |> 
+  mutate(jsonid = row_number()) |>
+  mutate(player = ESPNFromJSON$players$player$fullName[id]) |> 
+  mutate(position = ESPNFromJSON$players$player$defaultPositionId[id]) |> 
+  filter(season == 2022) |> 
+  filter(fpts == max(fpts)) |> 
+mutate(value = ESPNFromJSON$players$player$draftRanksByRankType$PPR$auctionValue[id])
+}
+
+```
+
+<!-- ::: {.fragment} -->
+
+```{r, echo=TRUE, cache=TRUE}
+get_player_projection(id = 1) |> gt::gt()
+```
+
+<!-- ::: -->
+
+<!-- ::: {.fragment} -->
+
+<!-- ```{.r} -->
+<!-- ESPN_results <-  -->
+<!--   1:length(ESPNFromJSON$players$draftAuctionValue) |>  -->
+<!--   map_dfr(~get_player_projection(id = .x))  -->
+<!-- ``` -->
+
+<!-- ::: -->
+
+## Clean API results for linear model {auto-animate="true"}
+
+```{.r code-line-numbers=""}
+ESPN_results <- 
+  1:length(ESPNFromJSON$players$draftAuctionValue) |> 
+  map_dfr(~get_player_projection(id = .x)) 
+```
+
+## Clean API results for linear model {auto-animate="true"}
+
+
+```{.r}
+ESPN_results <- 
+  1:length(ESPNFromJSON$players$draftAuctionValue) |> 
+  map_dfr(~get_player_projection(id = .x)) |>
+  group_by(player) |> slice(1) |> ungroup() |> 
+  mutate(position = case_when(position == 1 ~ "QB",
+                              position == 2 ~ "RB",
+                              position == 3 ~ "WR",
+                              position == 4 ~ "TE",
+                              position == 5 ~ "K",
+                              position == 16 ~ "DEF")) |> 
+  mutate(points_per_dollar = fpts / value) |> 
+  filter(!is.infinite(points_per_dollar)) |> 
+  filter(!is.nan(points_per_dollar)) |> 
+  mutate(position_qb = ifelse(position == "QB",1,0)) |> 
+  mutate(position_rb = ifelse(position == "RB",1,0)) |> 
+  mutate(position_wr = ifelse(position == "WR",1,0)) |> 
+  mutate(position_te = ifelse(position == "TE",1,0)) |> 
+  mutate(position_flex = ifelse(position %in% c("RB","WR","TE"),1,0)) |>
+  filter(position %in% c("QB","WR","RB","TE")) 
+```
+
+```{r, echo=FALSE, cache=TRUE}
+value <- 1:length(ESPNFromJSON$players$draftAuctionValue) |> map_dfr(~get_player_projection(id = .x)) |> 
+  group_by(player) |> slice(1) |> ungroup() |> 
+  mutate(position = case_when(position == 1 ~ "QB",
+                              position == 2 ~ "RB",
+                              position == 3 ~ "WR",
+                              position == 4 ~ "TE",
+                              position == 5 ~ "K",
+                              position == 16 ~ "DEF")) |> 
+  mutate(points_per_dollar = fpts / value) |> 
+  filter(!is.infinite(points_per_dollar)) |> 
+  filter(!is.nan(points_per_dollar)) |> 
+  mutate(position_qb = ifelse(position == "QB",1,0)) |> 
+  mutate(position_rb = ifelse(position == "RB",1,0)) |> 
+  mutate(position_wr = ifelse(position == "WR",1,0)) |> 
+  mutate(position_te = ifelse(position == "TE",1,0)) |> 
+  mutate(position_flex = ifelse(position %in% c("RB","WR","TE"),1,0))
+
+```
+
+## Partial API Results {.scrollable}
+
+::: {.column width="100%"}
+
+```{r, echo=FALSE}
+library(tidyverse)
+library(tidytext)
+value |> select(-jsonid,-score_per_id,-season) |> 
+  mutate(fpts = round(fpts), points_per_dollar = round(points_per_dollar)) |> 
+  arrange(-points_per_dollar) |>
+  group_by(position) |> 
+  select(fpts, player, position, points_per_dollar) %>% 
+  filter(position %in% c("RB","WR","TE","QB")) %>% 
+  group_by(position) %>% 
+  slice_max(fpts, n = 10) %>% 
+  mutate(player = reorder_within(player, fpts, position)) %>% 
+  ggplot(aes(x = fpts, y = player, fill = position)) +
+  geom_col() +
+  scale_y_reordered() +
+  # xkcd::xkcdman() +
+  facet_wrap(~position, scales = "free_y") +
+  theme(legend.position = "none") +
+  labs(x = "Fantasy Points", y = "", title = "Top 10 projected fantasy point scorers at each position") 
+  # gt::gt()
+  # DT::datatable() |> 
+  # DT::formatStyle(columns = colnames(.), fontSize = '50%')
+
+
+```
+
+:::
+
+
+```{r, cache=TRUE, echo=FALSE}
+library(lpSolve)
+
+value <-
+value |> 
+  filter(position %in% c("QB","WR","RB","TE")) 
+
+
+f_obj <- value |> pull(fpts) 
+
+f_con <- matrix(c(value |> pull(position_qb),
+                  value |> pull(position_rb),
+                  value |> pull(position_wr),
+                  value |> pull(position_te),
+                  value |> pull(position_flex),
+                  value |> pull(value)
+                  
+),nrow = 6, byrow = T)
+
+f_dir <- c("=", # qb
+           "<=", # rb
+           "<=", # wr
+           "=", # te
+           "=", # flex
+           "<=" # price
+           )
+
+# money_spent <- -qb_price_remove - rb_price_remove - wr_price_remove - te_price_remove 
+
+f_rhs <-
+  c(1,
+    3,
+    3,
+    1,
+    6,
+    200)
+
+solution <-
+  lp(
+    direction = "max",
+    objective.in =  f_obj,
+    const.mat =  f_con,
+    const.dir =  f_dir,
+    const.rhs =  f_rhs, 
+    all.bin = TRUE
+  )
+
+# qbs_remaining <- joined |> filter(position == "QB") |> pull(player)
+
+my_team <-
+value |> 
+  mutate(solution = solution$solution) |> 
+  # filter(solution > 0)
+  filter(solution == 1) |> 
+  # print(n = Inf) |> 
+  select(fpts, player, position, value, points_per_dollar) |> 
+  mutate(dollars_per_point = fpts/value) |> 
+  arrange(position)
+
+# my_team |> 
+  # summarise(sum(value))
+
+
+# my_team |> 
+  # summarise(tot = sum(value)) |> pull(tot)
+
+# my_team |> 
+  # summarise(tot = sum(fpts)/17) |> pull(tot)
+
+
+```
+
+# Down to business
+
+## Select a solver engine {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: {.fragment .highlight-red}
+lpSolve
+:::
+CVXR  
+GLPK  
+rmpk  
+ompr  
+
+## lpSolve {auto-animate="true"}
+
+```{.r code-line-numbers=""}
+library(lpSolve)
+
+f_obj <- ESPN_results |> pull(fpts) 
+
+f_con <- matrix(c(ESPN_results |> pull(position_qb),
+                  ESPN_results |> pull(position_qb),
+                  ESPN_results |> pull(position_wr),
+                  ESPN_results |> pull(position_te),
+                  ESPN_results |> pull(position_flex),
+                  ESPN_results |> pull(value)
+                  ),nrow = 6, byrow = T)
+
+f_dir <- c("=",  # qb
+           "<=", # rb
+           "<=", # wr
+           "=",  # te
+           "=",  # flex
+           "<="  # price
+           )
+
+f_rhs <- c(1,
+           3,
+           3,
+           1,
+           6,
+           200)
+```
+
+## lpSolve {.scrollable}
+
+::: {.panel-tabset}
+
+### Objective Values
+
+```{r, echo=TRUE}
+f_obj
+```
+
+
+### Constraint matrix
+
+```{r, echo=TRUE}
+f_con
+```
+
+:::
+
+## Solution {auto-animate="true"}
+
+```{.r}
+solution <-
+  lp(
+    direction = "max",
+    objective.in =  f_obj,
+    const.mat =  f_con,
+    const.dir =  f_dir,
+    const.rhs =  f_rhs, 
+    all.bin = TRUE
+  )
+```
+
+## Solution {auto-animate="true"}
+
+```{.r}
+solution <-
+  lp(
+    direction = "max",
+    objective.in =  f_obj,
+    const.mat =  f_con,
+    const.dir =  f_dir,
+    const.rhs =  f_rhs, 
+    all.bin = TRUE
+  )
+  
+solution$solution
+```
+
+```{r}
+solution$solution
+```
+
+
+## My team
+
+```{.r}
+ESPN_results |>
+  mutate(solution = solution$solution) |> 
+  filter(solution == 1) |>
+  select(fpts, player, position, value, points_per_dollar) |>
+  mutate(dollars_per_point = fpts/value) |>
+  arrange(position)
+
+```
+
+
+```{r}
+
+my_team <-
+  value |> 
+  mutate(solution = solution$solution) |> 
+  filter(solution == 1) |> 
+  select(fpts, player, position, value, points_per_dollar) |> 
+  mutate(dollars_per_point = fpts/value) |> 
+  arrange(position) |> 
+  mutate(across(.cols = where(is.numeric), .fns = ~round(.))) |> 
+  select(fpts, player, position, exp_auction_value = value)
+my_team |> gt::gt()
+```
+
+## Final thoughts
+
+- What happens when things do not go as planned?
+- Other applications
+
+
+## Thanks!
+
+github: [dusty-turner](https://github.com/dusty-turner)  
+twitter: [@dtdusty](https://twitter.com/DTDusty) 
+linkedin: [dusty-turner](www.linkedin.com/in/dusty-turner-34a148112)   
+email: dusty.s.turner@gmail.com  
+website: [dustysturner.com](dustysturner.com)  
+repo: [dusty-turner/2022_r_gov_ff_draft](dusty-turner/2022_r_gov_ff_draft)
+
+
+![](03_images/GitHub-Mark-120px-plus.png){.absolute top=90 left=-50 width="35" height="35"}
+![](03_images/twitter.png){.absolute top=140 left=-50 width="35" height="35"}
+![](03_images/LI-In-Bug.png){.absolute top=190 left=-50 width="40" height="35"}
+![](03_images/gmail.png){.absolute top=240 left=-50 width="35" height="35"}
+
+
+<!-- ```{.r} -->
+
+
+<!-- my_team |>  -->
+<!--   summarise(sum(value)) -->
+
+
+<!-- my_team |>  -->
+<!--   summarise(tot = sum(value)) |> pull(tot) -->
+
+<!-- my_team |>  -->
+<!--   summarise(tot = sum(fpts)/17) |> pull(tot) -->
+
+
+<!-- ``` -->
+

@@ -1,0 +1,248 @@
+---
+title: "Auction Linear Program"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    # runtime: shiny
+    runtime: shiny_prerendered
+---
+
+```{r global, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(lpSolve)
+library(shiny)
+
+joined <- read_csv("2022ff.csv")
+# joined <- data_to_use
+```
+
+
+App
+=======================================================================
+
+Select {.sidebar}
+-----------------------------------------------
+
+```{r}
+selectInput(
+  inputId = "players",
+  label = "Players Off The Board",
+  choices = joined$player,
+  multiple = T,
+  selected = NULL,
+  width = "100%", selectize = T
+)
+
+selectInput(
+  inputId = "my_qb",
+  label = "My QB",
+  choices = joined %>% filter(position == "QB") %>%  select(player) %>% pull(player),
+  selected = NULL,
+  multiple = T
+)
+
+selectInput(
+  inputId = "my_rbs",
+  label = "My RBs",
+  choices = joined %>% filter(position == "RB") %>%  select(player) %>% pull(player),
+  selected = NULL,
+  multiple = T
+)
+
+selectInput(
+  inputId = "my_wrs",
+  label = "My WRs",
+  choices = joined %>% filter(position == "WR") %>%  select(player) %>% pull(player),
+  selected = NULL,
+  multiple = T
+)
+
+selectInput(
+  inputId = "my_tes",
+  label = "My TEs",
+  choices = joined %>% filter(position == "TE") %>%  select(player) %>% pull(player),
+  selected = NULL,
+  multiple = T
+)
+
+numericInput(inputId = "overage", label = "How many did you go over?", value = 0, step = 1)
+
+```
+
+Row
+-------------------------------------------------
+
+### Output
+
+```{r, fig.height=12}
+
+
+reactive_joined <- reactive({
+
+  qb_slug = 0
+  rb_slug = 0
+  wr_slug = 0
+  te_slug = 0
+  qb_price_remove = 0
+  rb_price_remove = 0
+  wr_price_remove = 0
+  te_price_remove = 0
+  
+  if(!is.null(input$my_qb)){
+    qb_slug = 1
+    qb_price_remove = joined %>% filter(player %in% input$my_qb) %>% summarise(tot_value = sum(Value)) %>% pull(tot_value)
+  }
+  if(!is.null(input$my_rbs)){
+    rb_slug = length(input$my_rbs)
+    rb_price_remove = joined %>% filter(player %in% input$my_rbs) %>% summarise(tot_value = sum(Value)) %>% pull(tot_value)
+  }
+  if(!is.null(input$my_wrs)){
+    wr_slug = length(input$my_wrs)
+    wr_price_remove = joined %>% filter(player %in% input$my_wrs) %>% summarise(tot_value = sum(Value)) %>% pull(tot_value)
+  }
+  if(!is.null(input$my_tes)){
+    te_slug = 1
+    # te_slug = length(input$my_tes)
+    te_price_remove = joined %>% filter(player %in% input$my_tes) %>% summarise(tot_value = sum(Value)) %>% pull(tot_value)
+  }
+  
+  selected <-
+    joined %>% 
+    filter(player %in% c(input$my_qb,input$my_rbs,input$my_wrs,input$my_tes)) %>% 
+    select(player, position, Value, fpts)
+    # select(player, position, team, Value, fpts)
+
+  joined <-
+  joined %>% 
+  filter(!player %in% input$players) %>% 
+    filter(!player %in% input$my_qb) %>% 
+    filter(!player %in% input$my_rbs) %>% 
+    filter(!player %in% input$my_wrs) %>% 
+    filter(!player %in% input$my_tes) 
+
+f_obj <- joined %>% pull(fpts) 
+
+f_con <- matrix(c(joined %>% pull(position_qb),
+                  joined %>% pull(position_qb),
+                  joined %>% pull(position_wr),
+                  joined %>% pull(position_te),
+                  joined %>% pull(position_flex),
+                  joined %>% pull(Value)
+                  
+),nrow = 6, byrow = T)
+
+f_dir <- c("=", # qb
+           "<=", # rb
+           "<=", # wr
+           "=", # te
+           "=", # flex
+           "<=" # price
+           )
+
+money_spent <- -qb_price_remove - rb_price_remove - wr_price_remove - te_price_remove 
+
+f_rhs <-
+  c(1 - qb_slug,
+    3 - rb_slug,
+    3 - wr_slug,
+    1 - te_slug,
+    5 - rb_slug - wr_slug,
+    200 + money_spent - input$overage
+    # 200 - 6 + money_spent - input$overage
+    )
+
+solution <-
+  lp(
+    direction = "max",
+    objective.in =  f_obj,
+    const.mat =  f_con,
+    const.dir =  f_dir,
+    const.rhs =  f_rhs, 
+    all.bin = TRUE
+  )
+
+# qbs_remaining <- joined %>% filter(position == "QB") %>% pull(player)
+
+my_team <-
+joined %>% 
+  mutate(solution = solution$solution) %>% 
+  # filter(solution > 0)
+  filter(solution == 1) %>% 
+  # print(n = Inf) %>% 
+  select(fpts, player, position, Value, points_per_dollar) %>% 
+  mutate(dollars_per_point = round(fpts/Value,1)) %>% 
+  mutate(fpts = round(fpts), points_per_dollar = round(points_per_dollar,1))
+
+tot_value <-
+my_team %>% 
+  summarise(tot = sum(Value)) %>% pull(tot)
+
+out <- list(my_team = my_team, tot_value = tot_value, rb_slug = rb_slug, wr_slug = wr_slug, f_rhs = f_rhs, money_spent = money_spent, selected = selected)
+
+return(out)
+})
+
+renderDataTable(
+  reactive_joined()$my_team %>% 
+    filter(!player %in% input$players)
+)
+
+```
+
+### Draft Info
+
+```{r, fig.height=1}
+renderText({
+  str_c(
+    # reactive_joined()$rb_price_remove,
+    "remaining budget = ", reactive_joined()$tot_value,
+        # input$my_qb,
+        # str_c(input$my_rbs,collapse = " & "),
+        # str_c(input$my_wrs,collapse = " & "),
+        # str_c(input$my_tes,collapse = " & "),
+        "overage = ", input$overage,
+    "money_spent = ", reactive_joined()$money_spent, 
+    "total_projected_spend = ", c(reactive_joined()$tot_value - reactive_joined()$money_spent + input$overage),
+    # reactive_joined()$f_rhs,
+        sep = " ")
+})
+```
+
+### Currently Drafted
+
+```{r, fig.height=2}
+renderTable({
+  reactive_joined()$selected
+})
+```
+
+Players
+=======================================================================
+
+```{r}
+renderDataTable({
+  joined %>% 
+    select(-contains("position"))
+}, options = list(filter = 'top'))
+```
+
+Performance
+=======================================================================
+
+```{r}
+renderPlot({
+  joined %>% 
+  filter(position %in% c("RB", "WR")) %>%
+  ggplot(aes(x = fct_reorder(player, points_per_dollar), y = points_per_dollar)) +
+  geom_point() +
+  geom_text(aes(label = str_c(fpts, " / ", Value)), nudge_y = +.03) +
+  # geom_text(aes(label = fpts), nudge_y = -20) +
+  # scale_y_log10() +
+  facet_wrap(~position, scales = "free_y", nrow = 1) +
+  coord_flip() +
+  labs(x = "", y = "Dollars per Point")
+})
+```
+
